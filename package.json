@@ -1,0 +1,14 @@
+{
+  "name": "ridemycity",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "pnpm -r dev",
+    "build": "pnpm -r build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.16.1"
+}
