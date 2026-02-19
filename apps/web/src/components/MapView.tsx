@@ -4,6 +4,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import './MapView.css';
 import { type GeoResult } from './SearchBar';
 import RideSidebar from './RideSidebar';
+import { config } from '../config';
 
 const OSM_STYLE: maplibregl.StyleSpecification = {
   version: 8,
@@ -27,7 +28,6 @@ const OSM_STYLE: maplibregl.StyleSpecification = {
 
 const EMPTY_STATS = { totalKm: 0, cityExplored: 0, totalRides: 0 };
 
-const API_BASE = 'http://localhost:3000';
 const MASK_SOURCE = 'city-mask';
 const MASK_LAYER = 'city-mask-fill';
 const BOUNDARY_SOURCE = 'city-boundary';
@@ -277,7 +277,9 @@ export default function MapView() {
     map.on('load', () => {
       map.addSource(RIDES_SOURCE, {
         type: 'geojson',
-        data: createFeatureCollection(INITIAL_RIDES.map(ride => createLineFeature(ride.coordinates))) as GeoJSON.GeoJSON,
+        data: createFeatureCollection(
+          INITIAL_RIDES.map(ride => createLineFeature(ride.coordinates)),
+        ) as GeoJSON.GeoJSON,
       });
       map.addLayer({
         id: RIDES_LAYER,
@@ -393,7 +395,7 @@ export default function MapView() {
     });
 
     const res = await fetch(
-      `${API_BASE}/geo/boundary?q=${encodeURIComponent(result.display_name)}`,
+      `${config.apiBaseUrl}/geo/boundary?q=${encodeURIComponent(result.display_name)}`,
     );
     if (res.ok) {
       const { geojson } = (await res.json()) as { geojson: CityGeometry };
@@ -403,6 +405,9 @@ export default function MapView() {
 
   function handleLocate() {
     navigator.geolocation.getCurrentPosition(({ coords }) => {
+      if (mapRef.current) {
+        clearBoundary(mapRef.current);
+      }
       mapRef.current?.flyTo({
         center: [coords.longitude, coords.latitude],
         zoom: 14,
@@ -433,10 +438,7 @@ export default function MapView() {
 
     if (drawingMode === 'ride' && pointsToSave.length > 1) {
       setSavedRides(prev => {
-        const nextRides = [
-          ...prev,
-          { id: createShapeId('ride'), coordinates: pointsToSave },
-        ];
+        const nextRides = [...prev, { id: createShapeId('ride'), coordinates: pointsToSave }];
         updateSourceData(
           RIDES_SOURCE,
           createFeatureCollection(nextRides.map(ride => createLineFeature(ride.coordinates))),
@@ -521,9 +523,15 @@ export default function MapView() {
     };
   }, [drawingMode, updateDraftLayers]);
 
-  useEffect(() => {
+  function handleStartRide() {
     clearDraft();
-  }, [drawingMode, clearDraft]);
+    setDrawingMode('ride');
+  }
+
+  function handleStartAvoidZone() {
+    clearDraft();
+    setDrawingMode('avoid');
+  }
 
   return (
     <div className="map-wrapper">
@@ -543,8 +551,8 @@ export default function MapView() {
           name: `Zona ${index + 1}`,
           points: Math.max(zone.coordinates.length - 1, 0),
         }))}
-        onStartRide={() => setDrawingMode('ride')}
-        onStartAvoidZone={() => setDrawingMode('avoid')}
+        onStartRide={handleStartRide}
+        onStartAvoidZone={handleStartAvoidZone}
         onStopDrawing={handleStopDrawing}
         onUndo={handleUndo}
         onSave={handleSave}
