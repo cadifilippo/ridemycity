@@ -26,6 +26,69 @@ const OSM_STYLE: maplibregl.StyleSpecification = {
 
 const EMPTY_STATS = { totalKm: 0, cityExplored: 0, totalRides: 0 }
 
+const API_BASE = 'http://localhost:3000'
+const MASK_SOURCE = 'city-mask'
+const MASK_LAYER = 'city-mask-fill'
+const BOUNDARY_SOURCE = 'city-boundary'
+const BOUNDARY_LINE = 'city-boundary-line'
+
+// Full-world bounding ring used as the outer polygon of the inverted mask
+const WORLD_RING: [number, number][] = [
+  [-180, -90], [180, -90], [180, 90], [-180, 90], [-180, -90],
+]
+
+type PolygonGeometry = { type: 'Polygon'; coordinates: number[][][] }
+type MultiPolygonGeometry = { type: 'MultiPolygon'; coordinates: number[][][][] }
+type CityGeometry = PolygonGeometry | MultiPolygonGeometry
+
+function createInvertedMask(geojson: CityGeometry) {
+  const holes =
+    geojson.type === 'Polygon'
+      ? [geojson.coordinates[0]]
+      : geojson.coordinates.map((polygon) => polygon[0])
+
+  return {
+    type: 'Feature' as const,
+    geometry: { type: 'Polygon' as const, coordinates: [WORLD_RING, ...holes] },
+    properties: {},
+  }
+}
+
+function clearBoundary(map: maplibregl.Map) {
+  if (map.getLayer(MASK_LAYER)) map.removeLayer(MASK_LAYER)
+  if (map.getLayer(BOUNDARY_LINE)) map.removeLayer(BOUNDARY_LINE)
+  if (map.getSource(MASK_SOURCE)) map.removeSource(MASK_SOURCE)
+  if (map.getSource(BOUNDARY_SOURCE)) map.removeSource(BOUNDARY_SOURCE)
+}
+
+function drawBoundary(map: maplibregl.Map, geojson: CityGeometry) {
+  clearBoundary(map)
+
+  // World minus city → grey overlay outside
+  map.addSource(MASK_SOURCE, {
+    type: 'geojson',
+    data: createInvertedMask(geojson) as never,
+  })
+  map.addLayer({
+    id: MASK_LAYER,
+    type: 'fill',
+    source: MASK_SOURCE,
+    paint: { 'fill-color': '#64748b', 'fill-opacity': 0.45 },
+  })
+
+  // City border
+  map.addSource(BOUNDARY_SOURCE, {
+    type: 'geojson',
+    data: { type: 'Feature', geometry: geojson, properties: {} } as never,
+  })
+  map.addLayer({
+    id: BOUNDARY_LINE,
+    type: 'line',
+    source: BOUNDARY_SOURCE,
+    paint: { 'line-color': '#2563eb', 'line-width': 2 },
+  })
+}
+
 export default function MapView() {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<maplibregl.Map | null>(null)
@@ -61,12 +124,22 @@ export default function MapView() {
     }
   }, [])
 
-  function handleResultSelect(result: GeoResult) {
+  async function handleResultSelect(result: GeoResult) {
+    if (mapRef.current) clearBoundary(mapRef.current)
+
     mapRef.current?.flyTo({
       center: [parseFloat(result.lon), parseFloat(result.lat)],
       zoom: 14,
       speed: 1.4,
     })
+
+    const res = await fetch(
+      `${API_BASE}/geo/boundary?q=${encodeURIComponent(result.display_name)}`,
+    )
+    if (res.ok) {
+      const { geojson } = await res.json() as { geojson: CityGeometry }
+      if (mapRef.current) drawBoundary(mapRef.current, geojson)
+    }
   }
 
   function handleLocate() {

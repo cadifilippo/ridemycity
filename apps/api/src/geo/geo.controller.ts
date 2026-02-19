@@ -1,4 +1,10 @@
-import { BadRequestException, Controller, Get, Query } from '@nestjs/common';
+import {
+  BadRequestException,
+  Controller,
+  Get,
+  NotFoundException,
+  Query,
+} from '@nestjs/common';
 import { GeoService } from './geo.service';
 
 @Controller('geo')
@@ -11,5 +17,17 @@ export class GeoController {
       throw new BadRequestException('Query parameter "q" is required');
     }
     return this.geoService.geocode(q.trim());
+  }
+
+  @Get('boundary')
+  async boundary(@Query('q') q: string) {
+    if (!q?.trim()) {
+      throw new BadRequestException('Query parameter "q" is required');
+    }
+    const result = await this.geoService.getBoundary(q.trim());
+    if (!result) {
+      throw new NotFoundException('No boundary found for the given query');
+    }
+    return result;
   }
 }

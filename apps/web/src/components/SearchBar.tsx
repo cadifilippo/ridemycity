@@ -19,10 +19,12 @@ export default function SearchBar({ onSelect, onLocate }: Props) {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<GeoResult[]>([])
   const [loading, setLoading] = useState(false)
+  const [selectedId, setSelectedId] = useState<number | null>(null)
 
   async function search() {
     if (!query.trim()) return
     setLoading(true)
+    setSelectedId(null)
     try {
       const res = await fetch(
         `${API_BASE}/geo/geocode?q=${encodeURIComponent(query.trim())}`,
@@ -41,7 +43,7 @@ export default function SearchBar({ onSelect, onLocate }: Props) {
   function handleSelect(result: GeoResult) {
     onSelect(result)
     setQuery(result.display_name)
-    setResults([])
+    setSelectedId(result.place_id)
   }
 
   return (
@@ -63,13 +65,29 @@ export default function SearchBar({ onSelect, onLocate }: Props) {
       </div>
 
       {results.length > 0 && (
-        <ul className="search-results">
-          {results.map((result) => (
-            <li key={result.place_id} onClick={() => handleSelect(result)}>
-              {result.display_name}
-            </li>
-          ))}
-        </ul>
+        <div className="search-results">
+          <div className="search-results-header">
+            <span className="search-results-count">{results.length} resultados</span>
+            <button
+              className="search-results-close"
+              onClick={() => setResults([])}
+              aria-label="Cerrar resultados"
+            >
+              ✕
+            </button>
+          </div>
+          <ul>
+            {results.map((result) => (
+              <li
+                key={result.place_id}
+                className={result.place_id === selectedId ? 'selected' : ''}
+                onClick={() => handleSelect(result)}
+              >
+                {result.display_name}
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
     </div>
   )
