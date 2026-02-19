@@ -1,10 +1,37 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import './MapView.css';
-import { type GeoResult } from './SearchBar';
-import RideSidebar from './RideSidebar';
+import './MapPage.css';
 import { config } from '../config';
+import {
+  type Coordinate,
+  type DrawingMode,
+  type StoredRide,
+  type StoredAvoidZone,
+  type CityGeometry,
+  type GeoResult,
+} from '../types';
+import {
+  RIDES_SOURCE,
+  RIDES_LAYER,
+  AVOID_SOURCE,
+  AVOID_FILL_LAYER,
+  AVOID_OUTLINE_LAYER,
+  DRAFT_LINE_SOURCE,
+  DRAFT_LINE_LAYER,
+  DRAFT_POLYGON_SOURCE,
+  DRAFT_POLYGON_FILL_LAYER,
+  DRAFT_POLYGON_OUTLINE_LAYER,
+  clearBoundary,
+  drawBoundary,
+  createLineFeature,
+  createPolygonFeature,
+  createFeatureCollection,
+  createDraftPointElement,
+  type FeatureCollection,
+} from '../lib/mapLayers';
+import { calculateDistanceKm, ensureClosedRing } from '../lib/geo';
+import RideSidebar from '../components/sidebar/RideSidebar';
 
 const OSM_STYLE: maplibregl.StyleSpecification = {
   version: 8,
@@ -17,160 +44,10 @@ const OSM_STYLE: maplibregl.StyleSpecification = {
         '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     },
   },
-  layers: [
-    {
-      id: 'osm',
-      type: 'raster',
-      source: 'osm',
-    },
-  ],
+  layers: [{ id: 'osm', type: 'raster', source: 'osm' }],
 };
 
 const EMPTY_STATS = { totalKm: 0, cityExplored: 0, totalRides: 0 };
-
-const MASK_SOURCE = 'city-mask';
-const MASK_LAYER = 'city-mask-fill';
-const BOUNDARY_SOURCE = 'city-boundary';
-const BOUNDARY_LINE = 'city-boundary-line';
-const RIDES_SOURCE = 'saved-rides';
-const RIDES_LAYER = 'saved-rides-line';
-const AVOID_SOURCE = 'saved-avoid-zones';
-const AVOID_FILL_LAYER = 'saved-avoid-fill';
-const AVOID_OUTLINE_LAYER = 'saved-avoid-outline';
-const DRAFT_LINE_SOURCE = 'draft-line';
-const DRAFT_LINE_LAYER = 'draft-line-layer';
-const DRAFT_POLYGON_SOURCE = 'draft-polygon';
-const DRAFT_POLYGON_FILL_LAYER = 'draft-polygon-fill';
-const DRAFT_POLYGON_OUTLINE_LAYER = 'draft-polygon-outline';
-
-type Coordinate = [number, number];
-type DrawingMode = 'ride' | 'avoid' | null;
-type LineFeature = GeoJSON.Feature<GeoJSON.LineString>;
-type PolygonFeature = GeoJSON.Feature<GeoJSON.Polygon>;
-type FeatureCollection<T extends GeoJSON.Geometry> = GeoJSON.FeatureCollection<T>;
-type StoredRide = { id: string; coordinates: Coordinate[] };
-type StoredAvoidZone = { id: string; coordinates: Coordinate[] };
-
-// Full-world bounding ring used as the outer polygon of the inverted mask
-const WORLD_RING: [number, number][] = [
-  [-180, -90],
-  [180, -90],
-  [180, 90],
-  [-180, 90],
-  [-180, -90],
-];
-
-type PolygonGeometry = { type: 'Polygon'; coordinates: number[][][] };
-type MultiPolygonGeometry = { type: 'MultiPolygon'; coordinates: number[][][][] };
-type CityGeometry = PolygonGeometry | MultiPolygonGeometry;
-
-function createInvertedMask(geojson: CityGeometry) {
-  const holes =
-    geojson.type === 'Polygon'
-      ? [geojson.coordinates[0]]
-      : geojson.coordinates.map(polygon => polygon[0]);
-
-  return {
-    type: 'Feature' as const,
-    geometry: { type: 'Polygon' as const, coordinates: [WORLD_RING, ...holes] },
-    properties: {},
-  };
-}
-
-function clearBoundary(map: maplibregl.Map) {
-  if (map.getLayer(MASK_LAYER)) map.removeLayer(MASK_LAYER);
-  if (map.getLayer(BOUNDARY_LINE)) map.removeLayer(BOUNDARY_LINE);
-  if (map.getSource(MASK_SOURCE)) map.removeSource(MASK_SOURCE);
-  if (map.getSource(BOUNDARY_SOURCE)) map.removeSource(BOUNDARY_SOURCE);
-}
-
-function drawBoundary(map: maplibregl.Map, geojson: CityGeometry) {
-  clearBoundary(map);
-
-  // World minus city → grey overlay outside
-  map.addSource(MASK_SOURCE, {
-    type: 'geojson',
-    data: createInvertedMask(geojson) as never,
-  });
-  map.addLayer({
-    id: MASK_LAYER,
-    type: 'fill',
-    source: MASK_SOURCE,
-    paint: { 'fill-color': '#64748b', 'fill-opacity': 0.45 },
-  });
-
-  // City border
-  map.addSource(BOUNDARY_SOURCE, {
-    type: 'geojson',
-    data: { type: 'Feature', geometry: geojson, properties: {} } as never,
-  });
-  map.addLayer({
-    id: BOUNDARY_LINE,
-    type: 'line',
-    source: BOUNDARY_SOURCE,
-    paint: { 'line-color': '#2563eb', 'line-width': 2 },
-  });
-}
-
-function createLineFeature(coordinates: Coordinate[]): LineFeature {
-  return {
-    type: 'Feature',
-    geometry: { type: 'LineString', coordinates },
-    properties: {},
-  };
-}
-
-function createPolygonFeature(coordinates: Coordinate[]): PolygonFeature {
-  return {
-    type: 'Feature',
-    geometry: { type: 'Polygon', coordinates: [coordinates] },
-    properties: {},
-  };
-}
-
-function createFeatureCollection<T extends GeoJSON.Geometry>(
-  features: Array<GeoJSON.Feature<T>>,
-): FeatureCollection<T> {
-  return { type: 'FeatureCollection', features };
-}
-
-function ensureClosedRing(coordinates: Coordinate[]): Coordinate[] {
-  if (coordinates.length === 0) return coordinates;
-  const [firstLng, firstLat] = coordinates[0];
-  const [lastLng, lastLat] = coordinates[coordinates.length - 1];
-  if (firstLng === lastLng && firstLat === lastLat) return coordinates;
-  return [...coordinates, coordinates[0]];
-}
-
-function calculateDistanceKm(coordinates: Coordinate[]): number {
-  let totalKm = 0;
-
-  for (let i = 1; i < coordinates.length; i += 1) {
-    const [lng1, lat1] = coordinates[i - 1];
-    const [lng2, lat2] = coordinates[i];
-    const earthRadiusKm = 6371;
-    const dLat = ((lat2 - lat1) * Math.PI) / 180;
-    const dLng = ((lng2 - lng1) * Math.PI) / 180;
-    const a =
-      Math.sin(dLat / 2) ** 2 +
-      Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) * Math.sin(dLng / 2) ** 2;
-
-    totalKm += earthRadiusKm * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  }
-
-  return totalKm;
-}
-
-function createDraftPointElement(mode: Exclude<DrawingMode, null>): HTMLDivElement {
-  const element = document.createElement('div');
-  element.style.width = '8px';
-  element.style.height = '8px';
-  element.style.borderRadius = '9999px';
-  element.style.backgroundColor = mode === 'ride' ? '#22c55e' : '#ef4444';
-  element.style.border = '1.5px solid #ffffff';
-  element.style.boxShadow = '0 0 0 1px rgba(0, 0, 0, 0.08)';
-  return element;
-}
 
 const INITIAL_RIDES: StoredRide[] = [
   {
@@ -205,17 +82,19 @@ const INITIAL_AVOID_ZONES: StoredAvoidZone[] = [
   },
 ];
 
-export default function MapView() {
+export default function MapPage() {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const drawingPointsRef = useRef<Coordinate[]>([]);
   const cursorPointRef = useRef<Coordinate | null>(null);
   const draftMarkersRef = useRef<maplibregl.Marker[]>([]);
   const shapeCounterRef = useRef(2);
+
   const [drawingMode, setDrawingMode] = useState<DrawingMode>(null);
   const [estimatedKm, setEstimatedKm] = useState(0);
   const [savedRides, setSavedRides] = useState<StoredRide[]>(INITIAL_RIDES);
   const [savedAvoidZones, setSavedAvoidZones] = useState<StoredAvoidZone[]>(INITIAL_AVOID_ZONES);
+
   const createShapeId = useCallback((prefix: 'ride' | 'avoid') => {
     shapeCounterRef.current += 1;
     return `${prefix}-${shapeCounterRef.current}`;
@@ -261,6 +140,7 @@ export default function MapView() {
     updateDraftLayers();
   }, [updateDraftLayers]);
 
+  // ── Map initialisation ──────────────────────────────────────────────────────
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
 
@@ -285,11 +165,7 @@ export default function MapView() {
         id: RIDES_LAYER,
         type: 'line',
         source: RIDES_SOURCE,
-        paint: {
-          'line-color': '#60a5fa',
-          'line-width': 4,
-          'line-opacity': 0.72,
-        },
+        paint: { 'line-color': '#60a5fa', 'line-width': 4, 'line-opacity': 0.72 },
       });
 
       map.addSource(AVOID_SOURCE, {
@@ -302,20 +178,13 @@ export default function MapView() {
         id: AVOID_FILL_LAYER,
         type: 'fill',
         source: AVOID_SOURCE,
-        paint: {
-          'fill-color': '#ef4444',
-          'fill-opacity': 0.18,
-        },
+        paint: { 'fill-color': '#ef4444', 'fill-opacity': 0.18 },
       });
       map.addLayer({
         id: AVOID_OUTLINE_LAYER,
         type: 'line',
         source: AVOID_SOURCE,
-        paint: {
-          'line-color': '#dc2626',
-          'line-width': 2,
-          'line-dasharray': [2, 2],
-        },
+        paint: { 'line-color': '#dc2626', 'line-width': 2, 'line-dasharray': [2, 2] },
       });
 
       map.addSource(DRAFT_LINE_SOURCE, {
@@ -326,11 +195,7 @@ export default function MapView() {
         id: DRAFT_LINE_LAYER,
         type: 'line',
         source: DRAFT_LINE_SOURCE,
-        paint: {
-          'line-color': '#22c55e',
-          'line-width': 4,
-          'line-opacity': 0.95,
-        },
+        paint: { 'line-color': '#22c55e', 'line-width': 4, 'line-opacity': 0.95 },
       });
 
       map.addSource(DRAFT_POLYGON_SOURCE, {
@@ -341,27 +206,17 @@ export default function MapView() {
         id: DRAFT_POLYGON_FILL_LAYER,
         type: 'fill',
         source: DRAFT_POLYGON_SOURCE,
-        paint: {
-          'fill-color': '#ef4444',
-          'fill-opacity': 0.22,
-        },
+        paint: { 'fill-color': '#ef4444', 'fill-opacity': 0.22 },
       });
       map.addLayer({
         id: DRAFT_POLYGON_OUTLINE_LAYER,
         type: 'line',
         source: DRAFT_POLYGON_SOURCE,
-        paint: {
-          'line-color': '#ef4444',
-          'line-width': 2,
-        },
+        paint: { 'line-color': '#ef4444', 'line-width': 2 },
       });
 
       navigator.geolocation.getCurrentPosition(({ coords }) => {
-        map.flyTo({
-          center: [coords.longitude, coords.latitude],
-          zoom: 14,
-          speed: 1.4,
-        });
+        map.flyTo({ center: [coords.longitude, coords.latitude], zoom: 14, speed: 1.4 });
       });
     });
 
@@ -371,6 +226,7 @@ export default function MapView() {
     };
   }, []);
 
+  // ── Sync saved data to map layers ───────────────────────────────────────────
   useEffect(() => {
     updateSourceData(
       RIDES_SOURCE,
@@ -385,97 +241,7 @@ export default function MapView() {
     );
   }, [savedAvoidZones, updateSourceData]);
 
-  async function handleResultSelect(result: GeoResult) {
-    if (mapRef.current) clearBoundary(mapRef.current);
-
-    mapRef.current?.flyTo({
-      center: [parseFloat(result.lon), parseFloat(result.lat)],
-      zoom: 14,
-      speed: 1.4,
-    });
-
-    const res = await fetch(
-      `${config.apiBaseUrl}/geo/boundary?q=${encodeURIComponent(result.display_name)}`,
-    );
-    if (res.ok) {
-      const { geojson } = (await res.json()) as { geojson: CityGeometry };
-      if (mapRef.current) drawBoundary(mapRef.current, geojson);
-    }
-  }
-
-  function handleLocate() {
-    navigator.geolocation.getCurrentPosition(({ coords }) => {
-      if (mapRef.current) {
-        clearBoundary(mapRef.current);
-      }
-      mapRef.current?.flyTo({
-        center: [coords.longitude, coords.latitude],
-        zoom: 14,
-        speed: 1.4,
-      });
-    });
-  }
-
-  function handleUndo() {
-    if (!drawingMode || drawingPointsRef.current.length === 0) return;
-
-    drawingPointsRef.current = drawingPointsRef.current.slice(0, -1);
-    const lastMarker = draftMarkersRef.current.pop();
-    lastMarker?.remove();
-    if (drawingMode === 'ride') {
-      setEstimatedKm(calculateDistanceKm(drawingPointsRef.current));
-    }
-    updateDraftLayers();
-  }
-
-  function handleStopDrawing() {
-    clearDraft();
-    setDrawingMode(null);
-  }
-
-  function handleSave() {
-    const pointsToSave = [...drawingPointsRef.current];
-
-    if (drawingMode === 'ride' && pointsToSave.length > 1) {
-      setSavedRides(prev => {
-        const nextRides = [...prev, { id: createShapeId('ride'), coordinates: pointsToSave }];
-        updateSourceData(
-          RIDES_SOURCE,
-          createFeatureCollection(nextRides.map(ride => createLineFeature(ride.coordinates))),
-        );
-        return nextRides;
-      });
-    }
-
-    if (drawingMode === 'avoid' && pointsToSave.length > 2) {
-      setSavedAvoidZones(prev => {
-        const nextZones = [
-          ...prev,
-          {
-            id: createShapeId('avoid'),
-            coordinates: ensureClosedRing(pointsToSave),
-          },
-        ];
-        updateSourceData(
-          AVOID_SOURCE,
-          createFeatureCollection(nextZones.map(zone => createPolygonFeature(zone.coordinates))),
-        );
-        return nextZones;
-      });
-    }
-
-    clearDraft();
-    setDrawingMode(null);
-  }
-
-  function handleDeleteRide(id: string) {
-    setSavedRides(prev => prev.filter(ride => ride.id !== id));
-  }
-
-  function handleDeleteAvoidZone(id: string) {
-    setSavedAvoidZones(prev => prev.filter(zone => zone.id !== id));
-  }
-
+  // ── Map interaction (click + mousemove) ─────────────────────────────────────
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
@@ -523,6 +289,81 @@ export default function MapView() {
     };
   }, [drawingMode, updateDraftLayers]);
 
+  // ── Handlers ────────────────────────────────────────────────────────────────
+  async function handleSearchSelect(result: GeoResult) {
+    if (mapRef.current) clearBoundary(mapRef.current);
+
+    mapRef.current?.flyTo({
+      center: [parseFloat(result.lon), parseFloat(result.lat)],
+      zoom: 14,
+      speed: 1.4,
+    });
+
+    const res = await fetch(
+      `${config.apiBaseUrl}/geo/boundary?q=${encodeURIComponent(result.display_name)}`,
+    );
+    if (res.ok) {
+      const { geojson } = (await res.json()) as { geojson: CityGeometry };
+      if (mapRef.current) drawBoundary(mapRef.current, geojson);
+    }
+  }
+
+  function handleLocate() {
+    navigator.geolocation.getCurrentPosition(({ coords }) => {
+      if (mapRef.current) clearBoundary(mapRef.current);
+      mapRef.current?.flyTo({ center: [coords.longitude, coords.latitude], zoom: 14, speed: 1.4 });
+    });
+  }
+
+  function handleUndo() {
+    if (!drawingMode || drawingPointsRef.current.length === 0) return;
+
+    drawingPointsRef.current = drawingPointsRef.current.slice(0, -1);
+    const lastMarker = draftMarkersRef.current.pop();
+    lastMarker?.remove();
+    if (drawingMode === 'ride') {
+      setEstimatedKm(calculateDistanceKm(drawingPointsRef.current));
+    }
+    updateDraftLayers();
+  }
+
+  function handleStopDrawing() {
+    clearDraft();
+    setDrawingMode(null);
+  }
+
+  function handleSave() {
+    const pointsToSave = [...drawingPointsRef.current];
+
+    if (drawingMode === 'ride' && pointsToSave.length > 1) {
+      setSavedRides(prev => {
+        const nextRides = [...prev, { id: createShapeId('ride'), coordinates: pointsToSave }];
+        updateSourceData(
+          RIDES_SOURCE,
+          createFeatureCollection(nextRides.map(ride => createLineFeature(ride.coordinates))),
+        );
+        return nextRides;
+      });
+    }
+
+    if (drawingMode === 'avoid' && pointsToSave.length > 2) {
+      setSavedAvoidZones(prev => {
+        const nextZones = [
+          ...prev,
+          { id: createShapeId('avoid'), coordinates: ensureClosedRing(pointsToSave) },
+        ];
+        updateSourceData(
+          AVOID_SOURCE,
+          createFeatureCollection(nextZones.map(zone => createPolygonFeature(zone.coordinates))),
+        );
+        return nextZones;
+      });
+    }
+
+    clearDraft();
+    setDrawingMode(null);
+  }
+
   function handleStartRide() {
     clearDraft();
     setDrawingMode('ride');
@@ -556,9 +397,9 @@ export default function MapView() {
         onStopDrawing={handleStopDrawing}
         onUndo={handleUndo}
         onSave={handleSave}
-        onDeleteRide={handleDeleteRide}
-        onDeleteAvoidZone={handleDeleteAvoidZone}
-        onSearchSelect={handleResultSelect}
+        onDeleteRide={id => setSavedRides(prev => prev.filter(r => r.id !== id))}
+        onDeleteAvoidZone={id => setSavedAvoidZones(prev => prev.filter(z => z.id !== id))}
+        onSearchSelect={handleSearchSelect}
         onLocate={handleLocate}
       />
     </div>
