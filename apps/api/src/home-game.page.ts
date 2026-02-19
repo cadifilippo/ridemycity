@@ -187,193 +187,193 @@ export const HOME_GAME_PAGE_HTML = `<!doctype html>
         }
 
         function drawBike() {
-  var rearX = bike.x + 14;
-  var frontX = bike.x + bike.w - 14;
-  var wheelY = bike.y + bike.h - 2;
+          var rearX = bike.x + 14;
+          var frontX = bike.x + bike.w - 14;
+          var wheelY = bike.y + bike.h - 2;
 
-  var cx = bike.x + bike.w * 0.52; // centro del cuadro
-  var topY = bike.y + 12;
+          var cx = bike.x + bike.w * 0.52; // centro del cuadro
+          var topY = bike.y + 12;
 
-  // Animación: giro de ruedas según velocidad y tick
-  var spin = -(game.tick * game.speed) / 26;
+          // Animación: giro de ruedas según velocidad y tick
+          var spin = -(game.tick * game.speed) / 26;
 
-  function wheel(x, y, r) {
-    // neumático
-    ctx.strokeStyle = '#0b1220';
-    ctx.lineWidth = 4;
-    ctx.beginPath();
-    ctx.arc(x, y, r, 0, Math.PI * 2);
-    ctx.stroke();
+          function wheel(x, y, r) {
+            // neumático
+            ctx.strokeStyle = '#0b1220';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.arc(x, y, r, 0, Math.PI * 2);
+            ctx.stroke();
 
-    // aro
-    ctx.strokeStyle = '#94a3b8';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.arc(x, y, r - 2, 0, Math.PI * 2);
-    ctx.stroke();
+            // aro
+            ctx.strokeStyle = '#94a3b8';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(x, y, r - 2, 0, Math.PI * 2);
+            ctx.stroke();
 
-    // centro
-    ctx.fillStyle = '#cbd5e1';
-    ctx.beginPath();
-    ctx.arc(x, y, 2.2, 0, Math.PI * 2);
-    ctx.fill();
+            // centro
+            ctx.fillStyle = '#cbd5e1';
+            ctx.beginPath();
+            ctx.arc(x, y, 2.2, 0, Math.PI * 2);
+            ctx.fill();
 
-    // rayos (rotando)
-    ctx.strokeStyle = 'rgba(226, 232, 240, 0.9)';
-    ctx.lineWidth = 1;
-    for (var i = 0; i < 6; i += 1) {
-      var a = spin + (Math.PI * 2 * i) / 6;
-      ctx.beginPath();
-      ctx.moveTo(x, y);
-      ctx.lineTo(x + Math.cos(a) * (r - 4), y + Math.sin(a) * (r - 4));
-      ctx.stroke();
-    }
-  }
+            // rayos (rotando)
+            ctx.strokeStyle = 'rgba(226, 232, 240, 0.9)';
+            ctx.lineWidth = 1;
+            for (var i = 0; i < 6; i += 1) {
+              var a = spin + (Math.PI * 2 * i) / 6;
+              ctx.beginPath();
+              ctx.moveTo(x, y);
+              ctx.lineTo(x + Math.cos(a) * (r - 4), y + Math.sin(a) * (r - 4));
+              ctx.stroke();
+            }
+          }
 
-  // ruedas
-  wheel(rearX, wheelY, 11);
-  wheel(frontX, wheelY, 11);
+          // ruedas
+          wheel(rearX, wheelY, 11);
+          wheel(frontX, wheelY, 11);
 
-  // sombras/relieve simple del cuadro
-  ctx.lineCap = 'round';
-  ctx.lineJoin = 'round';
+          // sombras/relieve simple del cuadro
+          ctx.lineCap = 'round';
+          ctx.lineJoin = 'round';
 
-  // cuadro (más "bicicleta")
-  ctx.strokeStyle = '#22c55e';
-  ctx.lineWidth = 4;
+          // cuadro (más "bicicleta")
+          ctx.strokeStyle = '#22c55e';
+          ctx.lineWidth = 4;
 
-  // puntos del cuadro
-  var bbX = cx + 4;          // caja pedalera
-  var bbY = wheelY - 6;
-  var seatX = cx - 12;
-  var seatY = topY + 2;
-  var headX = frontX - 4;
-  var headY = wheelY - 20;
+          // puntos del cuadro
+          var bbX = cx + 4;          // caja pedalera
+          var bbY = wheelY - 6;
+          var seatX = cx - 12;
+          var seatY = topY + 2;
+          var headX = frontX - 4;
+          var headY = wheelY - 20;
 
-  ctx.beginPath();
-  // triángulo trasero
-  ctx.moveTo(rearX, wheelY);
-  ctx.lineTo(bbX, bbY);
-  ctx.lineTo(seatX, seatY);
-  ctx.lineTo(rearX, wheelY);
+          ctx.beginPath();
+          // triángulo trasero
+          ctx.moveTo(rearX, wheelY);
+          ctx.lineTo(bbX, bbY);
+          ctx.lineTo(seatX, seatY);
+          ctx.lineTo(rearX, wheelY);
 
-  // tubo superior a dirección
-  ctx.moveTo(seatX, seatY);
-  ctx.lineTo(headX, headY);
+          // tubo superior a dirección
+          ctx.moveTo(seatX, seatY);
+          ctx.lineTo(headX, headY);
 
-  // tubo inferior a dirección
-  ctx.moveTo(bbX, bbY);
-  ctx.lineTo(headX, headY);
+          // tubo inferior a dirección
+          ctx.moveTo(bbX, bbY);
+          ctx.lineTo(headX, headY);
 
-  // horquilla a rueda delantera
-  ctx.moveTo(headX, headY);
-  ctx.lineTo(frontX, wheelY);
+          // horquilla a rueda delantera
+          ctx.moveTo(headX, headY);
+          ctx.lineTo(frontX, wheelY);
 
-  ctx.stroke();
+          ctx.stroke();
 
-  // bielas/pedal
-  ctx.strokeStyle = '#a7f3d0';
-  ctx.lineWidth = 2.6;
-  ctx.beginPath();
-  ctx.arc(bbX, bbY, 4, 0, Math.PI * 2);
-  ctx.stroke();
+          // bielas/pedal
+          ctx.strokeStyle = '#a7f3d0';
+          ctx.lineWidth = 2.6;
+          ctx.beginPath();
+          ctx.arc(bbX, bbY, 4, 0, Math.PI * 2);
+          ctx.stroke();
 
-  var pedalRate = Math.min(0.95, 0.45 + game.speed * 0.07);
-  var base = (game.tick * pedalRate) / 10;
-  var crankA = base + Math.sin(base) * 0.12;
-  var pedalX = bbX + Math.cos(crankA) * 10;
-  var pedalY = bbY + Math.sin(crankA) * 10;
-  ctx.beginPath();
-  ctx.moveTo(bbX, bbY);
-  ctx.lineTo(pedalX, pedalY);
-  ctx.stroke();
+          var pedalRate = Math.min(0.95, 0.45 + game.speed * 0.07);
+          var base = (game.tick * pedalRate) / 10;
+          var crankA = base + Math.sin(base) * 0.12;
+          var pedalX = bbX + Math.cos(crankA) * 10;
+          var pedalY = bbY + Math.sin(crankA) * 10;
+          ctx.beginPath();
+          ctx.moveTo(bbX, bbY);
+          ctx.lineTo(pedalX, pedalY);
+          ctx.stroke();
 
-  ctx.lineWidth = 3;
-  ctx.beginPath();
-  ctx.moveTo(pedalX - 4, pedalY);
-  ctx.lineTo(pedalX + 4, pedalY);
-  ctx.stroke();
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.moveTo(pedalX - 4, pedalY);
+          ctx.lineTo(pedalX + 4, pedalY);
+          ctx.stroke();
 
-  // asiento + manubrio
-  ctx.strokeStyle = '#16a34a';
-  ctx.lineWidth = 3;
-  ctx.beginPath();
-  // asiento
-  ctx.moveTo(seatX - 2, seatY - 10);
-  ctx.lineTo(seatX - 2, seatY - 2);
-  ctx.moveTo(seatX - 10, seatY - 12);
-  ctx.lineTo(seatX + 6, seatY - 12);
+          // asiento + manubrio
+          ctx.strokeStyle = '#16a34a';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          // asiento
+          ctx.moveTo(seatX - 2, seatY - 10);
+          ctx.lineTo(seatX - 2, seatY - 2);
+          ctx.moveTo(seatX - 10, seatY - 12);
+          ctx.lineTo(seatX + 6, seatY - 12);
 
-  // manubrio
-  ctx.moveTo(headX + 2, headY - 10);
-  ctx.lineTo(headX - 2, headY);
-  ctx.moveTo(headX - 14, headY - 10);
-  ctx.lineTo(headX + 10, headY - 10);
-  ctx.stroke();
+          // manubrio
+          ctx.moveTo(headX + 2, headY - 10);
+          ctx.lineTo(headX - 2, headY);
+          ctx.moveTo(headX - 14, headY - 10);
+          ctx.lineTo(headX + 10, headY - 10);
+          ctx.stroke();
 
-  // ciclista (simple pero “humano”)
-  var riderLean = bike.onGround ? 0.0 : -0.12;
+          // ciclista (simple pero “humano”)
+          var riderLean = bike.onGround ? 0.0 : -0.12;
 
-  var hipX = cx - 2;
-  var hipY = seatY - 6;
+          var hipX = cx - 2;
+          var hipY = seatY - 6;
 
-  var shoulderX = hipX + 10;
-  var shoulderY = hipY - 16;
+          var shoulderX = hipX + 10;
+          var shoulderY = hipY - 16;
 
-  var headXr = shoulderX + 10;
-  var headYr = shoulderY - 10;
+          var headXr = shoulderX + 10;
+          var headYr = shoulderY - 10;
 
-  // cabeza
-  ctx.fillStyle = '#f8fafc';
-  ctx.beginPath();
-  ctx.arc(headXr, headYr, 5, 0, Math.PI * 2);
-  ctx.fill();
+          // cabeza
+          ctx.fillStyle = '#f8fafc';
+          ctx.beginPath();
+          ctx.arc(headXr, headYr, 5, 0, Math.PI * 2);
+          ctx.fill();
 
-  // torso
-  ctx.strokeStyle = '#e2e8f0';
-  ctx.lineWidth = 3;
-  ctx.beginPath();
-  ctx.moveTo(shoulderX, shoulderY);
-  ctx.lineTo(hipX, hipY);
-  ctx.stroke();
+          // torso
+          ctx.strokeStyle = '#e2e8f0';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.moveTo(shoulderX, shoulderY);
+          ctx.lineTo(hipX, hipY);
+          ctx.stroke();
 
-  // brazos al manubrio
-  var gripX = headX - 6;
-  var gripY = headY - 10;
+          // brazos al manubrio
+          var gripX = headX - 6;
+          var gripY = headY - 10;
 
-  ctx.lineWidth = 2.6;
-  ctx.beginPath();
-  ctx.moveTo(shoulderX + 2, shoulderY + 2);
-  ctx.lineTo(gripX - 2, gripY + 2);
-  ctx.stroke();
+          ctx.lineWidth = 2.6;
+          ctx.beginPath();
+          ctx.moveTo(shoulderX + 2, shoulderY + 2);
+          ctx.lineTo(gripX - 2, gripY + 2);
+          ctx.stroke();
 
-  // piernas pedaleando (dos líneas alternadas)
-  var legA = crankA + riderLean;
-  var knee1X = hipX + Math.cos(legA) * 10;
-  var knee1Y = hipY + 10 + Math.sin(legA) * 6;
+          // piernas pedaleando (dos líneas alternadas)
+          var legA = crankA + riderLean;
+          var knee1X = hipX + Math.cos(legA) * 10;
+          var knee1Y = hipY + 10 + Math.sin(legA) * 6;
 
-  ctx.strokeStyle = '#cbd5e1';
-  ctx.lineWidth = 2.6;
-  ctx.beginPath();
-  // pierna 1: cadera -> rodilla -> pedal
-  ctx.moveTo(hipX, hipY);
-  ctx.lineTo(knee1X, knee1Y);
-  ctx.lineTo(pedalX, pedalY);
-  ctx.stroke();
+          ctx.strokeStyle = '#cbd5e1';
+          ctx.lineWidth = 2.6;
+          ctx.beginPath();
+          // pierna 1: cadera -> rodilla -> pedal
+          ctx.moveTo(hipX, hipY);
+          ctx.lineTo(knee1X, knee1Y);
+          ctx.lineTo(pedalX, pedalY);
+          ctx.stroke();
 
-  // pierna 2 (opuesta)
-  var pedal2X = bbX + Math.cos(crankA + Math.PI) * 10;
-  var pedal2Y = bbY + Math.sin(crankA + Math.PI) * 10;
-  var knee2X = hipX + Math.cos(legA + Math.PI) * 10;
-  var knee2Y = hipY + 10 + Math.sin(legA + Math.PI) * 6;
+          // pierna 2 (opuesta)
+          var pedal2X = bbX + Math.cos(crankA + Math.PI) * 10;
+          var pedal2Y = bbY + Math.sin(crankA + Math.PI) * 10;
+          var knee2X = hipX + Math.cos(legA + Math.PI) * 10;
+          var knee2Y = hipY + 10 + Math.sin(legA + Math.PI) * 6;
 
-  ctx.strokeStyle = 'rgba(203, 213, 225, 0.7)';
-  ctx.beginPath();
-  ctx.moveTo(hipX, hipY);
-  ctx.lineTo(knee2X, knee2Y);
-  ctx.lineTo(pedal2X, pedal2Y);
-  ctx.stroke();
-}
+          ctx.strokeStyle = 'rgba(203, 213, 225, 0.7)';
+          ctx.beginPath();
+          ctx.moveTo(hipX, hipY);
+          ctx.lineTo(knee2X, knee2Y);
+          ctx.lineTo(pedal2X, pedal2Y);
+          ctx.stroke();
+        }
 
         function drawObstacles() {
           for (var i = 0; i < obstacles.length; i += 1) {
