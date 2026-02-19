@@ -1,8 +1,9 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import maplibregl from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import './MapView.css'
-import SearchBar, { type GeoResult } from './SearchBar'
+import { type GeoResult } from './SearchBar'
+import RideSidebar from './RideSidebar'
 
 const OSM_STYLE: maplibregl.StyleSpecification = {
   version: 8,
@@ -23,9 +24,13 @@ const OSM_STYLE: maplibregl.StyleSpecification = {
   ],
 }
 
+const EMPTY_STATS = { totalKm: 0, cityExplored: 0, totalRides: 0 }
+
 export default function MapView() {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<maplibregl.Map | null>(null)
+  const [drawingMode, setDrawingMode] = useState<'ride' | 'avoid' | null>(null)
+  const [estimatedKm, setEstimatedKm] = useState(0)
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return
@@ -41,15 +46,13 @@ export default function MapView() {
     map.addControl(new maplibregl.NavigationControl(), 'top-right')
 
     map.on('load', () => {
-      navigator.geolocation.getCurrentPosition(
-        ({ coords }) => {
-          map.flyTo({
-            center: [coords.longitude, coords.latitude],
-            zoom: 14,
-            speed: 1.4,
-          })
-        },
-      )
+      navigator.geolocation.getCurrentPosition(({ coords }) => {
+        map.flyTo({
+          center: [coords.longitude, coords.latitude],
+          zoom: 14,
+          speed: 1.4,
+        })
+      })
     })
 
     return () => {
@@ -76,10 +79,32 @@ export default function MapView() {
     })
   }
 
+  function handleStopDrawing() {
+    setDrawingMode(null)
+    setEstimatedKm(0)
+  }
+
+  function handleSave() {
+    // TODO: persist ride/zone
+    setDrawingMode(null)
+    setEstimatedKm(0)
+  }
+
   return (
     <div className="map-wrapper">
       <div ref={containerRef} className="map-container" />
-      <SearchBar onSelect={handleResultSelect} onLocate={handleLocate} />
+      <RideSidebar
+        drawingMode={drawingMode}
+        estimatedKm={estimatedKm}
+        stats={EMPTY_STATS}
+        onStartRide={() => setDrawingMode('ride')}
+        onStartAvoidZone={() => setDrawingMode('avoid')}
+        onStopDrawing={handleStopDrawing}
+        onUndo={() => {}}
+        onSave={handleSave}
+        onSearchSelect={handleResultSelect}
+        onLocate={handleLocate}
+      />
     </div>
   )
 }
