@@ -1,4 +1,25 @@
-# RideMyCity
+# 🚴 RideMyCity
+
+> Traza tus recorridos en bicicleta y descubre tu ciudad, calle por calle.
+
+<p align="left">
+  <a href="https://ridemycity-web.vercel.app/">
+    <img src="https://img.shields.io/badge/Ver%20app-%E2%96%B6%20ridemycity--web.vercel.app-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="App desplegada en Vercel" />
+  </a>
+  <br />
+  <br />
+  <a href="https://docs.google.com/presentation/d/1nQd80GU62wJKY-TL1ZEsXdoh3vJot2t1koIo8i7ZbNg/edit?usp=sharing">
+    <img src="https://img.shields.io/badge/Presentaci%C3%B3n-Google%20Slides-FBBC04?style=for-the-badge&logo=google-slides&logoColor=white" alt="Presentación en Google Slides" />
+  </a>
+  <br />
+  <br />
+  <a href="docs/ARCHITECTURE.md">
+    <img src="https://img.shields.io/badge/Documentaci%C3%B3n-Arquitectura%20%26%20API-4A90E2?style=for-the-badge&logo=gitbook&logoColor=white" alt="Documentación técnica" />
+  </a>
+  <br />
+</p>
+
+---
 
 ## Descripción General
 
@@ -86,7 +107,7 @@ ridemycity/
     └── shared/               # Tipos compartidos (pendiente)
 ```
 
-La API sigue la convención de NestJS: cada funcionalidad tiene su propio módulo con controlador y servicio. El controlador delega inmediatamente al servicio; toda la lógica vive en el servicio.
+La API sigue la convención de NestJS: cada funcionalidad tiene su propio módulo con controlador y servicio. El controlador delega inmediatamente al servicio; toda la lógica vive en el servicio. Ver [arquitectura detallada](docs/ARCHITECTURE.md) y [referencia de la API](docs/API.md).
 
 ## Funcionalidades
 
@@ -98,4 +119,4 @@ La API sigue la convención de NestJS: cada funcionalidad tiene su propio módul
 - **Estadísticas** — el panel lateral muestra el total de kilómetros acumulados y el número de rides completados, calculados en tiempo real a partir de los datos cargados.
 - **Selección y borrado** — cada ruta y zona del historial se puede seleccionar (se resalta en el mapa) y eliminar.
 - **Localización** — botón para centrar el mapa en la ubicación actual del dispositivo.
-- **Easter egg** — si vamos a la url del api, podemos jugar un [minijuego](http://localhost:3000/) tipo runner.
+- **Easter egg** — si vamos a la URL de la API, podemos jugar un [minijuego](https://ridemycity-api.vercel.app/) tipo runner.

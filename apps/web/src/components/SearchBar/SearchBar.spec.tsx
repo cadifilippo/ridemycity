@@ -10,7 +10,9 @@ vi.mock('../../lib/apiClient', () => ({
 
 const mockGet = vi.mocked(apiClient.get);
 
-function makeGeoResult(overrides?: Partial<{ place_id: number; display_name: string; lat: string; lon: string }>) {
+function makeGeoResult(
+  overrides?: Partial<{ place_id: number; display_name: string; lat: string; lon: string }>,
+) {
   return {
     place_id: 282071899,
     display_name: 'Ciudad de México, México',
@@ -69,7 +71,10 @@ describe('SearchBar', () => {
 
     it('SearchBar when the API returns a single result should auto-select it and call onSelect', async () => {
       // Arrange
-      const result = makeGeoResult({ place_id: 99, display_name: 'Oaxaca de Juárez, Oaxaca, México' });
+      const result = makeGeoResult({
+        place_id: 99,
+        display_name: 'Oaxaca de Juárez, Oaxaca, México',
+      });
       mockGet.mockResolvedValueOnce({ data: [result] } as never);
       const onSelect = vi.fn();
 
