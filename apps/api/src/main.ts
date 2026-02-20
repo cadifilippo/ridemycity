@@ -12,7 +12,18 @@ async function bootstrap() {
   const port = config.get('port', { infer: true }) ?? 3000;
   const corsOrigin = config.get('corsOrigin', { infer: true });
 
-  app.use(helmet());
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          scriptSrc: [
+            "'self'",
+            "'sha256-xWQwGLGML5mNNPGsILz+eAdeO2/VjqM/jj5PBnvsstA='",
+          ],
+        },
+      },
+    }),
+  );
   app.use(morgan('dev'));
   app.enableCors({ origin: corsOrigin });
   await app.listen(port);

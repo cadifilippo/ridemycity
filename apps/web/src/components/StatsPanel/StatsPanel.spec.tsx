@@ -4,22 +4,21 @@ import StatsPanel from './StatsPanel';
 
 describe('StatsPanel', () => {
   describe('when rendered with valid stats', () => {
-    it('StatsPanel when given totalKm, cityExplored and totalRides should display all three stat values', () => {
+    it('StatsPanel when given totalKm and totalRides should display both stat values', () => {
       // Arrange
-      const stats = { totalKm: 142.5, cityExplored: 18, totalRides: 27 };
+      const stats = { totalKm: 142.5, totalRides: 27 };
 
       // Act
       render(<StatsPanel stats={stats} />);
 
       // Assert
       expect(screen.getByText('142.5 km')).toBeInTheDocument();
-      expect(screen.getByText('18%')).toBeInTheDocument();
       expect(screen.getByText('27')).toBeInTheDocument();
     });
 
     it('StatsPanel when rendered should display the section heading "Estadísticas"', () => {
       // Arrange
-      const stats = { totalKm: 0, cityExplored: 0, totalRides: 0 };
+      const stats = { totalKm: 0, totalRides: 0 };
 
       // Act
       render(<StatsPanel stats={stats} />);
@@ -30,14 +29,13 @@ describe('StatsPanel', () => {
 
     it('StatsPanel when rendered should display descriptive labels for each stat', () => {
       // Arrange
-      const stats = { totalKm: 10, cityExplored: 5, totalRides: 3 };
+      const stats = { totalKm: 10, totalRides: 3 };
 
       // Act
       render(<StatsPanel stats={stats} />);
 
       // Assert
       expect(screen.getByText('Total recorrido')).toBeInTheDocument();
-      expect(screen.getByText('Ciudad explorada')).toBeInTheDocument();
       expect(screen.getByText('Rides completados')).toBeInTheDocument();
     });
   });
@@ -45,14 +43,14 @@ describe('StatsPanel', () => {
   describe('when rendered with zero stats', () => {
     it('StatsPanel when all stats are zero should still display zeros without errors', () => {
       // Arrange
-      const stats = { totalKm: 0, cityExplored: 0, totalRides: 0 };
+      const stats = { totalKm: 0, totalRides: 0 };
 
       // Act
       render(<StatsPanel stats={stats} />);
 
       // Assert
       expect(screen.getByText('0 km')).toBeInTheDocument();
-      expect(screen.getByText('0%')).toBeInTheDocument();
+      expect(screen.getByText('0')).toBeInTheDocument();
     });
   });
 });

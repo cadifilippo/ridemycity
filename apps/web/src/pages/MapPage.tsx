@@ -11,8 +11,6 @@ import { useDrawing } from '../hooks/useDrawing';
 import { useSelection } from '../hooks/useSelection';
 import RideSidebar from '../components/RideSidebar/RideSidebar';
 
-const EMPTY_STATS = { totalKm: 0, cityExplored: 0, totalRides: 0 };
-
 export default function MapPage() {
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -71,7 +69,13 @@ export default function MapPage() {
       <RideSidebar
         drawingMode={drawingMode}
         estimatedKm={estimatedKm}
-        stats={EMPTY_STATS}
+        stats={{
+          totalKm:
+            Math.round(
+              savedRides.reduce((sum, r) => sum + calculateDistanceKm(r.coordinates), 0) * 10,
+            ) / 10,
+          totalRides: savedRides.length,
+        }}
         savedRides={savedRides.map((ride, index) => ({
           id: ride.id,
           name: `Salida ${index + 1}`,

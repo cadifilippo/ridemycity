@@ -93,7 +93,7 @@ export default function RideSidebar({
             <>
               <button className="btn btn--primary" onClick={onStartRide}>
                 <Plus size={18} />
-                Nueva Ruta
+                Cargar Salida
               </button>
               <button className="btn btn--danger" onClick={onStartAvoidZone}>
                 <ShieldAlert size={18} />
