@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { Bike, Plus, ShieldAlert, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Bike, Plus, ShieldAlert, ChevronLeft, ChevronRight, LogOut } from 'lucide-react';
 import './RideSidebar.css';
 import SearchBar from '../SearchBar';
 import DrawingPanel from './DrawingPanel';
 import SavedList from './SavedList';
 import StatsPanel from './StatsPanel';
+import { useAuth } from '../../context/AuthContext';
 import { type DrawingMode, type Stats, type GeoResult } from '../../types';
 
 const SIDEBAR_WIDTH = 320;
@@ -51,6 +52,7 @@ export default function RideSidebar({
   onLocate,
 }: RideSidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
+  const { user, signOut } = useAuth();
 
   return (
     <div className="sidebar-wrapper">
@@ -68,10 +70,13 @@ export default function RideSidebar({
           <div className="sidebar-logo">
             <Bike size={20} />
           </div>
-          <div>
+          <div className="sidebar-header-info">
             <h1 className="sidebar-title">RideMyCity</h1>
-            <p className="sidebar-subtitle">Mi ciudad</p>
+            <p className="sidebar-subtitle">{user?.displayName ?? 'Mi ciudad'}</p>
           </div>
+          <button className="btn-icon sidebar-logout" onClick={signOut} aria-label="Cerrar sesión" title="Cerrar sesión">
+            <LogOut size={16} />
+          </button>
         </div>
 
         <div className="sidebar-search">

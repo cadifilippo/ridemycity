@@ -58,6 +58,21 @@
   border-bottom: 1px solid #e5e7eb;
 }
 
+.sidebar-header-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.sidebar-logout {
+  flex-shrink: 0;
+  color: #9ca3af;
+}
+
+.sidebar-logout:hover {
+  color: #dc2626;
+  background: rgba(239, 68, 68, 0.08);
+}
+
 .sidebar-logo {
   display: flex;
   align-items: center;
