@@ -17,8 +17,10 @@ describe('AppController', () => {
   describe('getHome', () => {
     describe('when called', () => {
       it('AppController.getHome when called should return an HTML page containing the bike runner game canvas', () => {
+        // Act
         const result = appController.getHome();
 
+        // Assert
         expect(result).toContain('<!doctype html>');
         expect(result).toContain('<canvas id="game"');
         expect(result).toContain('RideMyCity Runner');
