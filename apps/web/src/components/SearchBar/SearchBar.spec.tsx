@@ -2,13 +2,13 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import SearchBar from './SearchBar';
+import apiClient from '../../lib/apiClient';
 
-vi.mock('../config', () => ({
-  config: { apiBaseUrl: 'http://localhost:3000' },
+vi.mock('../../lib/apiClient', () => ({
+  default: { get: vi.fn() },
 }));
 
-const mockFetch = vi.fn();
-vi.stubGlobal('fetch', mockFetch);
+const mockGet = vi.mocked(apiClient.get);
 
 function makeGeoResult(overrides?: Partial<{ place_id: number; display_name: string; lat: string; lon: string }>) {
   return {
@@ -22,7 +22,7 @@ function makeGeoResult(overrides?: Partial<{ place_id: number; display_name: str
 
 describe('SearchBar', () => {
   beforeEach(() => {
-    mockFetch.mockReset();
+    mockGet.mockReset();
   });
 
   describe('when the user types and presses Enter', () => {
@@ -32,9 +32,7 @@ describe('SearchBar', () => {
         makeGeoResult({ place_id: 1, display_name: 'Ciudad de México, México' }),
         makeGeoResult({ place_id: 2, display_name: 'México, América del Norte' }),
       ];
-      mockFetch.mockResolvedValueOnce({
-        json: () => Promise.resolve(results),
-      });
+      mockGet.mockResolvedValueOnce({ data: results } as never);
       const onSelect = vi.fn();
 
       // Act
@@ -56,7 +54,7 @@ describe('SearchBar', () => {
         makeGeoResult({ place_id: 2, display_name: 'Guadalajara, España' }),
         makeGeoResult({ place_id: 3, display_name: 'Guadalajara, Illinois, Estados Unidos' }),
       ];
-      mockFetch.mockResolvedValueOnce({ json: () => Promise.resolve(results) });
+      mockGet.mockResolvedValueOnce({ data: results } as never);
 
       // Act
       render(<SearchBar onSelect={vi.fn()} onLocate={vi.fn()} />);
@@ -72,7 +70,7 @@ describe('SearchBar', () => {
     it('SearchBar when the API returns a single result should auto-select it and call onSelect', async () => {
       // Arrange
       const result = makeGeoResult({ place_id: 99, display_name: 'Oaxaca de Juárez, Oaxaca, México' });
-      mockFetch.mockResolvedValueOnce({ json: () => Promise.resolve([result]) });
+      mockGet.mockResolvedValueOnce({ data: [result] } as never);
       const onSelect = vi.fn();
 
       // Act
@@ -89,9 +87,9 @@ describe('SearchBar', () => {
   });
 
   describe('when the user clicks the search button', () => {
-    it('SearchBar when the search button is clicked with a query should call the API with the correct URL', async () => {
+    it('SearchBar when the search button is clicked with a query should call the API with the correct path', async () => {
       // Arrange
-      mockFetch.mockResolvedValueOnce({ json: () => Promise.resolve([]) });
+      mockGet.mockResolvedValueOnce({ data: [] } as never);
 
       // Act
       render(<SearchBar onSelect={vi.fn()} onLocate={vi.fn()} />);
@@ -100,9 +98,9 @@ describe('SearchBar', () => {
 
       // Assert
       await waitFor(() => {
-        const calledUrl = mockFetch.mock.calls[0][0] as string;
-        expect(calledUrl).toContain('http://localhost:3000/geo/geocode');
-        expect(calledUrl).toContain('q=Monterrey');
+        const calledPath = mockGet.mock.calls[0][0] as string;
+        expect(calledPath).toContain('/geo/geocode');
+        expect(calledPath).toContain('q=Monterrey');
       });
     });
 
@@ -112,7 +110,7 @@ describe('SearchBar', () => {
       await userEvent.click(screen.getByRole('button', { name: 'Buscar' }));
 
       // Assert
-      expect(mockFetch).not.toHaveBeenCalled();
+      expect(mockGet).not.toHaveBeenCalled();
     });
   });
 
@@ -123,7 +121,7 @@ describe('SearchBar', () => {
         makeGeoResult({ place_id: 10, display_name: 'Puebla, México' }),
         makeGeoResult({ place_id: 11, display_name: 'Puebla de Zaragoza, Puebla, México' }),
       ];
-      mockFetch.mockResolvedValueOnce({ json: () => Promise.resolve(results) });
+      mockGet.mockResolvedValueOnce({ data: results } as never);
       const onSelect = vi.fn();
 
       // Act
@@ -145,7 +143,7 @@ describe('SearchBar', () => {
         makeGeoResult({ place_id: 20, display_name: 'Tijuana, Baja California, México' }),
         makeGeoResult({ place_id: 21, display_name: 'Tijuana, Chile' }),
       ];
-      mockFetch.mockResolvedValueOnce({ json: () => Promise.resolve(results) });
+      mockGet.mockResolvedValueOnce({ data: results } as never);
 
       // Act
       render(<SearchBar onSelect={vi.fn()} onLocate={vi.fn()} />);

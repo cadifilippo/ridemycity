@@ -1,4 +1,5 @@
 import { Trash2 } from 'lucide-react';
+import './SavedList.css';
 
 interface Props {
   savedRides: Array<{ id: string; name: string; km: number; points: number }>;
@@ -23,7 +24,7 @@ export default function SavedList({
 }: Props) {
   return (
     <div className="sidebar-saved">
-      <p className="stats-heading">Guardados</p>
+      <p className="saved-heading">Guardados</p>
 
       <div className="saved-group">
         <p className="saved-group-title">Salidas ({savedRides.length})</p>

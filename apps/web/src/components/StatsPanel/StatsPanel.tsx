@@ -1,4 +1,5 @@
 import { Route, MapPinned, Activity } from 'lucide-react';
+import './StatsPanel.css';
 import { type Stats } from '../../types';
 
 interface Props {

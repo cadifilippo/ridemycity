@@ -4,6 +4,8 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { GeoModule } from './geo/geo.module';
 import { AuthModule } from './auth/auth.module';
+import { RidesModule } from './rides/rides.module';
+import { AvoidZonesModule } from './avoid-zones/avoid-zones.module';
 import configuration from './config/configuration';
 
 @Module({
@@ -14,6 +16,8 @@ import configuration from './config/configuration';
     }),
     GeoModule,
     AuthModule,
+    RidesModule,
+    AvoidZonesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

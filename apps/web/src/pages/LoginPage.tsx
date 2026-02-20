@@ -1,8 +1,8 @@
 import { Bike } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import './LoginScreen.css';
+import './LoginPage.css';
 
-export default function LoginScreen() {
+export default function LoginPage() {
   const { signInWithGoogle } = useAuth();
 
   return (
@@ -11,7 +11,7 @@ export default function LoginScreen() {
         <div className="login-logo">
           <Bike size={32} />
         </div>
-        <h1 className="login-title">RideMyCity</h1>
+        <h1 className="login-title">Ride My City</h1>
         <p className="login-subtitle">Traza las calles de tu ciudad</p>
         <button className="login-btn" onClick={signInWithGoogle}>
           <img
