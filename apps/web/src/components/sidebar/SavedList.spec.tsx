@@ -8,6 +8,10 @@ const emptyProps = {
   savedAvoidZones: [],
   onDeleteRide: vi.fn(),
   onDeleteAvoidZone: vi.fn(),
+  onSelectRide: vi.fn(),
+  onSelectAvoidZone: vi.fn(),
+  selectedRideId: null,
+  selectedAvoidId: null,
 };
 
 describe('SavedList', () => {
@@ -17,7 +21,7 @@ describe('SavedList', () => {
       render(<SavedList {...emptyProps} />);
 
       // Assert
-      expect(screen.getByText('No hay rutas guardadas.')).toBeInTheDocument();
+      expect(screen.getByText('No hay salidas guardadas.')).toBeInTheDocument();
       expect(screen.getByText('No hay zonas guardadas.')).toBeInTheDocument();
     });
 
@@ -26,7 +30,7 @@ describe('SavedList', () => {
       render(<SavedList {...emptyProps} />);
 
       // Assert
-      expect(screen.getByText('Rutas (0)')).toBeInTheDocument();
+      expect(screen.getByText('Salidas (0)')).toBeInTheDocument();
       expect(screen.getByText('Zonas a evitar (0)')).toBeInTheDocument();
     });
   });
