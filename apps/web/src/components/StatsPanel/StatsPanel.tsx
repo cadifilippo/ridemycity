@@ -1,4 +1,4 @@
-import { Route, MapPinned, Activity } from 'lucide-react';
+import { Route, Activity } from 'lucide-react';
 import './StatsPanel.css';
 import { type Stats } from '../../types';
 
@@ -18,16 +18,6 @@ export default function StatsPanel({ stats }: Props) {
         <div>
           <p className="stat-value">{stats.totalKm} km</p>
           <p className="stat-desc">Total recorrido</p>
-        </div>
-      </div>
-
-      <div className="stat-item">
-        <div className="stat-icon stat-icon--green">
-          <MapPinned size={16} />
-        </div>
-        <div>
-          <p className="stat-value">{stats.cityExplored}%</p>
-          <p className="stat-desc">Ciudad explorada</p>
         </div>
       </div>
 

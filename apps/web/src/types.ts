@@ -16,6 +16,5 @@ export interface GeoResult {
 
 export interface Stats {
   totalKm: number;
-  cityExplored: number;
   totalRides: number;
 }
