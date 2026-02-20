@@ -9,7 +9,7 @@ import { useMapInstance } from '../hooks/useMapInstance';
 import { useSavedShapes } from '../hooks/useSavedShapes';
 import { useDrawing } from '../hooks/useDrawing';
 import { useSelection } from '../hooks/useSelection';
-import RideSidebar from '../components/sidebar/RideSidebar';
+import RideSidebar from '../components/RideSidebar/RideSidebar';
 
 const EMPTY_STATS = { totalKm: 0, cityExplored: 0, totalRides: 0 };
 

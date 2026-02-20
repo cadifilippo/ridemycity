@@ -3,7 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import SearchBar from './SearchBar';
 
-vi.mock('../config', () => ({
+vi.mock('../../config', () => ({
   config: { apiBaseUrl: 'http://localhost:3000' },
 }));
 

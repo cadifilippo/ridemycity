@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import './SearchBar.css'
-import apiClient from '../lib/apiClient'
-import { type GeoResult } from '../types'
+import apiClient from '../../lib/apiClient'
+import { type GeoResult } from '../../types'
 
 interface Props {
   onSelect: (result: GeoResult) => void

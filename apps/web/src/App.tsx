@@ -1,5 +1,5 @@
 import { AuthProvider, useAuth } from './context/AuthContext';
-import LoginScreen from './components/LoginScreen';
+import LoginPage from './pages/LoginPage';
 import MapPage from './pages/MapPage';
 import './App.css';
 
@@ -10,7 +10,7 @@ function AppContent() {
     return <div className="loading-screen" aria-busy="true" aria-label="Cargando..." />;
   }
 
-  return user ? <MapPage /> : <LoginScreen />;
+  return user ? <MapPage /> : <LoginPage />;
 }
 
 export default function App() {

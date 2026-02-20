@@ -1,4 +1,5 @@
 import { X, Undo2, Save } from 'lucide-react';
+import './DrawingPanel.css';
 import { type DrawingMode } from '../../types';
 
 interface Props {

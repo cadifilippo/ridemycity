@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { Bike, Plus, ShieldAlert, ChevronLeft, ChevronRight, LogOut } from 'lucide-react';
 import './RideSidebar.css';
-import SearchBar from '../SearchBar';
-import DrawingPanel from './DrawingPanel';
-import SavedList from './SavedList';
-import StatsPanel from './StatsPanel';
+import SearchBar from '../SearchBar/SearchBar';
+import DrawingPanel from '../DrawingPanel/DrawingPanel';
+import SavedList from '../SavedList/SavedList';
+import StatsPanel from '../StatsPanel/StatsPanel';
 import { useAuth } from '../../context/AuthContext';
 import { type DrawingMode, type Stats, type GeoResult } from '../../types';
 
@@ -71,10 +71,15 @@ export default function RideSidebar({
             <Bike size={20} />
           </div>
           <div className="sidebar-header-info">
-            <h1 className="sidebar-title">RideMyCity</h1>
+            <h1 className="sidebar-title">Ride My City</h1>
             <p className="sidebar-subtitle">{user?.displayName ?? 'Mi ciudad'}</p>
           </div>
-          <button className="btn-icon sidebar-logout" onClick={signOut} aria-label="Cerrar sesión" title="Cerrar sesión">
+          <button
+            className="btn-icon sidebar-logout"
+            onClick={signOut}
+            aria-label="Cerrar sesión"
+            title="Cerrar sesión"
+          >
             <LogOut size={16} />
           </button>
         </div>
