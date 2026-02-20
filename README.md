@@ -1,4 +1,25 @@
-# RideMyCity
+# 🚴 RideMyCity
+
+> Traza tus recorridos en bicicleta y descubre tu ciudad, calle por calle.
+
+<p align="left">
+  <a href="https://ridemycity-web.vercel.app/">
+    <img src="https://img.shields.io/badge/Ver%20app-%E2%96%B6%20ridemycity--web.vercel.app-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="App desplegada en Vercel" />
+  </a>
+  <br />
+  <br />
+  <a href="https://docs.google.com/presentation/d/1nQd80GU62wJKY-TL1ZEsXdoh3vJot2t1koIo8i7ZbNg/edit?usp=sharing">
+    <img src="https://img.shields.io/badge/Presentaci%C3%B3n-Google%20Slides-FBBC04?style=for-the-badge&logo=google-slides&logoColor=white" alt="Presentación en Google Slides" />
+  </a>
+  <br />
+  <br />
+  <a href="docs/ARCHITECTURE.md">
+    <img src="https://img.shields.io/badge/Documentaci%C3%B3n-Arquitectura%20%26%20API-4A90E2?style=for-the-badge&logo=gitbook&logoColor=white" alt="Documentación técnica" />
+  </a>
+  <br />
+</p>
+
+---
 
 ## Descripción General
 
@@ -86,7 +107,7 @@ ridemycity/
     └── shared/               # Tipos compartidos (pendiente)
 ```
 
-La API sigue la convención de NestJS: cada funcionalidad tiene su propio módulo con controlador y servicio. El controlador delega inmediatamente al servicio; toda la lógica vive en el servicio.
+La API sigue la convención de NestJS: cada funcionalidad tiene su propio módulo con controlador y servicio. El controlador delega inmediatamente al servicio; toda la lógica vive en el servicio. Ver [arquitectura detallada](docs/ARCHITECTURE.md) y [referencia de la API](docs/API.md).
 
 ## Funcionalidades
 
