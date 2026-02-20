@@ -257,6 +257,30 @@
   border: 1px solid #e5e7eb;
   border-radius: 8px;
   background: #fff;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s;
+}
+
+.saved-item:hover {
+  background: #f9fafb;
+}
+
+.saved-item--selected {
+  border-color: #2563eb;
+  background: rgba(37, 99, 235, 0.05);
+}
+
+.saved-item--selected .saved-item-title {
+  color: #2563eb;
+}
+
+.saved-item--selected.saved-item--selected-avoid {
+  border-color: #ea580c;
+  background: rgba(234, 88, 12, 0.05);
+}
+
+.saved-item--selected.saved-item--selected-avoid .saved-item-title {
+  color: #ea580c;
 }
 
 .saved-item-title {

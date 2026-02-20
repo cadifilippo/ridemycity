@@ -22,6 +22,10 @@ export interface RideSidebarProps {
   onSave: () => void;
   onDeleteRide: (id: string) => void;
   onDeleteAvoidZone: (id: string) => void;
+  onSelectRide: (id: string) => void;
+  onSelectAvoidZone: (id: string) => void;
+  selectedRideId: string | null;
+  selectedAvoidId: string | null;
   onSearchSelect: (result: GeoResult) => void;
   onLocate: () => void;
 }
@@ -39,6 +43,10 @@ export default function RideSidebar({
   onSave,
   onDeleteRide,
   onDeleteAvoidZone,
+  onSelectRide,
+  onSelectAvoidZone,
+  selectedRideId,
+  selectedAvoidId,
   onSearchSelect,
   onLocate,
 }: RideSidebarProps) {
@@ -98,6 +106,10 @@ export default function RideSidebar({
           savedAvoidZones={savedAvoidZones}
           onDeleteRide={onDeleteRide}
           onDeleteAvoidZone={onDeleteAvoidZone}
+          onSelectRide={onSelectRide}
+          onSelectAvoidZone={onSelectAvoidZone}
+          selectedRideId={selectedRideId}
+          selectedAvoidId={selectedAvoidId}
         />
 
         <StatsPanel stats={stats} />

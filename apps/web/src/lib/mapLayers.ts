@@ -14,6 +14,14 @@ export const AVOID_SOURCE = 'saved-avoid-zones';
 export const AVOID_FILL_LAYER = 'saved-avoid-fill';
 export const AVOID_OUTLINE_LAYER = 'saved-avoid-outline';
 
+export const SELECTED_RIDE_SOURCE = 'selected-ride';
+export const SELECTED_RIDE_GLOW_LAYER = 'selected-ride-glow';
+export const SELECTED_RIDE_LAYER = 'selected-ride-line';
+
+export const SELECTED_AVOID_SOURCE = 'selected-avoid-zone';
+export const SELECTED_AVOID_FILL_LAYER = 'selected-avoid-fill';
+export const SELECTED_AVOID_OUTLINE_LAYER = 'selected-avoid-outline';
+
 export const DRAFT_LINE_SOURCE = 'draft-line';
 export const DRAFT_LINE_LAYER = 'draft-line-layer';
 export const DRAFT_POLYGON_SOURCE = 'draft-polygon';

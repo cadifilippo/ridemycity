@@ -17,6 +17,12 @@ import {
   AVOID_SOURCE,
   AVOID_FILL_LAYER,
   AVOID_OUTLINE_LAYER,
+  SELECTED_RIDE_SOURCE,
+  SELECTED_RIDE_GLOW_LAYER,
+  SELECTED_RIDE_LAYER,
+  SELECTED_AVOID_SOURCE,
+  SELECTED_AVOID_FILL_LAYER,
+  SELECTED_AVOID_OUTLINE_LAYER,
   DRAFT_LINE_SOURCE,
   DRAFT_LINE_LAYER,
   DRAFT_POLYGON_SOURCE,
@@ -94,6 +100,8 @@ export default function MapPage() {
   const [estimatedKm, setEstimatedKm] = useState(0);
   const [savedRides, setSavedRides] = useState<StoredRide[]>(INITIAL_RIDES);
   const [savedAvoidZones, setSavedAvoidZones] = useState<StoredAvoidZone[]>(INITIAL_AVOID_ZONES);
+  const [selectedRideId, setSelectedRideId] = useState<string | null>(null);
+  const [selectedAvoidId, setSelectedAvoidId] = useState<string | null>(null);
 
   const createShapeId = useCallback((prefix: 'ride' | 'avoid') => {
     shapeCounterRef.current += 1;
@@ -185,6 +193,40 @@ export default function MapPage() {
         type: 'line',
         source: AVOID_SOURCE,
         paint: { 'line-color': '#dc2626', 'line-width': 2, 'line-dasharray': [2, 2] },
+      });
+
+      map.addSource(SELECTED_RIDE_SOURCE, {
+        type: 'geojson',
+        data: createFeatureCollection<GeoJSON.LineString>([]) as GeoJSON.GeoJSON,
+      });
+      map.addLayer({
+        id: SELECTED_RIDE_GLOW_LAYER,
+        type: 'line',
+        source: SELECTED_RIDE_SOURCE,
+        paint: { 'line-color': '#ffffff', 'line-width': 13, 'line-opacity': 0.85 },
+      });
+      map.addLayer({
+        id: SELECTED_RIDE_LAYER,
+        type: 'line',
+        source: SELECTED_RIDE_SOURCE,
+        paint: { 'line-color': '#ff6600', 'line-width': 7, 'line-opacity': 1 },
+      });
+
+      map.addSource(SELECTED_AVOID_SOURCE, {
+        type: 'geojson',
+        data: createFeatureCollection<GeoJSON.Polygon>([]) as GeoJSON.GeoJSON,
+      });
+      map.addLayer({
+        id: SELECTED_AVOID_FILL_LAYER,
+        type: 'fill',
+        source: SELECTED_AVOID_SOURCE,
+        paint: { 'fill-color': '#f97316', 'fill-opacity': 0.3 },
+      });
+      map.addLayer({
+        id: SELECTED_AVOID_OUTLINE_LAYER,
+        type: 'line',
+        source: SELECTED_AVOID_SOURCE,
+        paint: { 'line-color': '#f97316', 'line-width': 3 },
       });
 
       map.addSource(DRAFT_LINE_SOURCE, {
@@ -364,6 +406,102 @@ export default function MapPage() {
     setDrawingMode(null);
   }
 
+  function setSelectionDim(dimmed: boolean) {
+    const map = mapRef.current;
+    if (!map) return;
+    map.setPaintProperty(RIDES_LAYER, 'line-opacity', dimmed ? 0.15 : 0.72);
+    map.setPaintProperty(AVOID_FILL_LAYER, 'fill-opacity', dimmed ? 0.05 : 0.18);
+    map.setPaintProperty(AVOID_OUTLINE_LAYER, 'line-opacity', dimmed ? 0.15 : 1);
+  }
+
+  function handleSelectRide(id: string) {
+    const map = mapRef.current;
+    if (!map) return;
+
+    setSelectedAvoidId(null);
+    updateSourceData(SELECTED_AVOID_SOURCE, createFeatureCollection<GeoJSON.Polygon>([]));
+
+    if (selectedRideId === id) {
+      setSelectedRideId(null);
+      updateSourceData(SELECTED_RIDE_SOURCE, createFeatureCollection<GeoJSON.LineString>([]));
+      setSelectionDim(false);
+      return;
+    }
+
+    setSelectedRideId(id);
+    const ride = savedRides.find(r => r.id === id);
+    if (!ride) return;
+
+    updateSourceData(
+      SELECTED_RIDE_SOURCE,
+      createFeatureCollection([createLineFeature(ride.coordinates)]),
+    );
+    setSelectionDim(true);
+
+    const lngs = ride.coordinates.map(c => c[0]);
+    const lats = ride.coordinates.map(c => c[1]);
+    map.fitBounds(
+      [
+        [Math.min(...lngs), Math.min(...lats)],
+        [Math.max(...lngs), Math.max(...lats)],
+      ],
+      { padding: { top: 80, bottom: 80, left: 360, right: 80 }, maxZoom: 16 },
+    );
+  }
+
+  function handleSelectAvoidZone(id: string) {
+    const map = mapRef.current;
+    if (!map) return;
+
+    setSelectedRideId(null);
+    updateSourceData(SELECTED_RIDE_SOURCE, createFeatureCollection<GeoJSON.LineString>([]));
+
+    if (selectedAvoidId === id) {
+      setSelectedAvoidId(null);
+      updateSourceData(SELECTED_AVOID_SOURCE, createFeatureCollection<GeoJSON.Polygon>([]));
+      setSelectionDim(false);
+      return;
+    }
+
+    setSelectedAvoidId(id);
+    const zone = savedAvoidZones.find(z => z.id === id);
+    if (!zone) return;
+
+    updateSourceData(
+      SELECTED_AVOID_SOURCE,
+      createFeatureCollection([createPolygonFeature(zone.coordinates)]),
+    );
+    setSelectionDim(true);
+
+    const lngs = zone.coordinates.map(c => c[0]);
+    const lats = zone.coordinates.map(c => c[1]);
+    map.fitBounds(
+      [
+        [Math.min(...lngs), Math.min(...lats)],
+        [Math.max(...lngs), Math.max(...lats)],
+      ],
+      { padding: { top: 80, bottom: 80, left: 360, right: 80 }, maxZoom: 16 },
+    );
+  }
+
+  function handleDeleteRide(id: string) {
+    if (selectedRideId === id) {
+      setSelectedRideId(null);
+      updateSourceData(SELECTED_RIDE_SOURCE, createFeatureCollection<GeoJSON.LineString>([]));
+      setSelectionDim(false);
+    }
+    setSavedRides(prev => prev.filter(r => r.id !== id));
+  }
+
+  function handleDeleteAvoidZone(id: string) {
+    if (selectedAvoidId === id) {
+      setSelectedAvoidId(null);
+      updateSourceData(SELECTED_AVOID_SOURCE, createFeatureCollection<GeoJSON.Polygon>([]));
+      setSelectionDim(false);
+    }
+    setSavedAvoidZones(prev => prev.filter(z => z.id !== id));
+  }
+
   function handleStartRide() {
     clearDraft();
     setDrawingMode('ride');
@@ -383,7 +521,7 @@ export default function MapPage() {
         stats={EMPTY_STATS}
         savedRides={savedRides.map((ride, index) => ({
           id: ride.id,
-          name: `Ruta ${index + 1}`,
+          name: `Salida ${index + 1}`,
           km: calculateDistanceKm(ride.coordinates),
           points: ride.coordinates.length,
         }))}
@@ -397,8 +535,12 @@ export default function MapPage() {
         onStopDrawing={handleStopDrawing}
         onUndo={handleUndo}
         onSave={handleSave}
-        onDeleteRide={id => setSavedRides(prev => prev.filter(r => r.id !== id))}
-        onDeleteAvoidZone={id => setSavedAvoidZones(prev => prev.filter(z => z.id !== id))}
+        onDeleteRide={handleDeleteRide}
+        onDeleteAvoidZone={handleDeleteAvoidZone}
+        onSelectRide={handleSelectRide}
+        onSelectAvoidZone={handleSelectAvoidZone}
+        selectedRideId={selectedRideId}
+        selectedAvoidId={selectedAvoidId}
         onSearchSelect={handleSearchSelect}
         onLocate={handleLocate}
       />
