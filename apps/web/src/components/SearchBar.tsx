@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import './SearchBar.css'
-import { config } from '../config'
+import apiClient from '../lib/apiClient'
 import { type GeoResult } from '../types'
 
 interface Props {
@@ -19,10 +19,9 @@ export default function SearchBar({ onSelect, onLocate }: Props) {
     setLoading(true)
     setSelectedId(null)
     try {
-      const res = await fetch(
-        `${config.apiBaseUrl}/geo/geocode?q=${encodeURIComponent(query.trim())}`,
+      const { data } = await apiClient.get<GeoResult[]>(
+        `/geo/geocode?q=${encodeURIComponent(query.trim())}`,
       )
-      const data: GeoResult[] = await res.json()
       if (data.length === 1) {
         handleSelect(data[0])
       } else {

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import './MapPage.css';
-import { config } from '../config';
+import apiClient from '../lib/apiClient';
 import {
   type Coordinate,
   type DrawingMode,
@@ -341,13 +341,10 @@ export default function MapPage() {
       speed: 1.4,
     });
 
-    const res = await fetch(
-      `${config.apiBaseUrl}/geo/boundary?q=${encodeURIComponent(result.display_name)}`,
+    const res = await apiClient.get<{ geojson: CityGeometry }>(
+      `/geo/boundary?q=${encodeURIComponent(result.display_name)}`,
     );
-    if (res.ok) {
-      const { geojson } = (await res.json()) as { geojson: CityGeometry };
-      if (mapRef.current) drawBoundary(mapRef.current, geojson);
-    }
+    if (mapRef.current) drawBoundary(mapRef.current, res.data.geojson);
   }
 
   function handleLocate() {
