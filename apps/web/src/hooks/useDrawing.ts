@@ -18,8 +18,8 @@ type UpdateSourceData = <T extends GeoJSON.Geometry>(
 ) => void;
 
 interface SaveCallbacks {
-  addRide: (coordinates: Coordinate[]) => void;
-  addAvoidZone: (coordinates: Coordinate[]) => void;
+  addRide: (coordinates: Coordinate[]) => Promise<void>;
+  addAvoidZone: (coordinates: Coordinate[]) => Promise<void>;
 }
 
 export function useDrawing(

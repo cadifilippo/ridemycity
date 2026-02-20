@@ -1,6 +1,7 @@
 import * as admin from 'firebase-admin';
 
 let _auth: admin.auth.Auth | null = null;
+let _db: admin.firestore.Firestore | null = null;
 
 export function getAdminAuth(): admin.auth.Auth {
   if (_auth) return _auth;
@@ -25,4 +26,11 @@ export function getAdminAuth(): admin.auth.Auth {
     .auth();
 
   return _auth;
+}
+
+export function getAdminDb(): admin.firestore.Firestore {
+  if (_db) return _db;
+  getAdminAuth();
+  _db = admin.apps[0]!.firestore();
+  return _db;
 }

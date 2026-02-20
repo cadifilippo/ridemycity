@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   RIDES_SOURCE,
   AVOID_SOURCE,
@@ -8,6 +8,7 @@ import {
   type FeatureCollection,
 } from '../lib/mapLayers';
 import { type Coordinate, type StoredRide, type StoredAvoidZone } from '../types';
+import apiClient from '../lib/apiClient';
 
 type UpdateSourceData = <T extends GeoJSON.Geometry>(
   sourceId: string,
@@ -17,8 +18,16 @@ type UpdateSourceData = <T extends GeoJSON.Geometry>(
 export function useSavedShapes(updateSourceData: UpdateSourceData) {
   const [savedRides, setSavedRides] = useState<StoredRide[]>([]);
   const [savedAvoidZones, setSavedAvoidZones] = useState<StoredAvoidZone[]>([]);
-  const rideCounterRef = useRef(0);
-  const avoidCounterRef = useRef(0);
+
+  useEffect(() => {
+    Promise.all([
+      apiClient.get<StoredRide[]>('/rides'),
+      apiClient.get<StoredAvoidZone[]>('/avoid-zones'),
+    ]).then(([ridesRes, zonesRes]) => {
+      setSavedRides(ridesRes.data);
+      setSavedAvoidZones(zonesRes.data);
+    });
+  }, []);
 
   useEffect(() => {
     updateSourceData(
@@ -34,23 +43,23 @@ export function useSavedShapes(updateSourceData: UpdateSourceData) {
     );
   }, [savedAvoidZones, updateSourceData]);
 
-  const addRide = useCallback((coordinates: Coordinate[]) => {
-    rideCounterRef.current += 1;
-    const id = `ride-${rideCounterRef.current}`;
-    setSavedRides(prev => [...prev, { id, coordinates }]);
+  const addRide = useCallback(async (coordinates: Coordinate[]) => {
+    const { data } = await apiClient.post<StoredRide>('/rides', { coordinates });
+    setSavedRides(prev => [...prev, data]);
   }, []);
 
-  const addAvoidZone = useCallback((coordinates: Coordinate[]) => {
-    avoidCounterRef.current += 1;
-    const id = `avoid-${avoidCounterRef.current}`;
-    setSavedAvoidZones(prev => [...prev, { id, coordinates }]);
+  const addAvoidZone = useCallback(async (coordinates: Coordinate[]) => {
+    const { data } = await apiClient.post<StoredAvoidZone>('/avoid-zones', { coordinates });
+    setSavedAvoidZones(prev => [...prev, data]);
   }, []);
 
-  const deleteRide = useCallback((id: string) => {
+  const deleteRide = useCallback(async (id: string) => {
+    await apiClient.delete(`/rides/${id}`);
     setSavedRides(prev => prev.filter(r => r.id !== id));
   }, []);
 
-  const deleteAvoidZone = useCallback((id: string) => {
+  const deleteAvoidZone = useCallback(async (id: string) => {
+    await apiClient.delete(`/avoid-zones/${id}`);
     setSavedAvoidZones(prev => prev.filter(z => z.id !== id));
   }, []);
 
