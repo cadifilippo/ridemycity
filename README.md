@@ -35,21 +35,21 @@ cp apps/web/.env.example apps/web/.env
 
 Edita `apps/api/.env`:
 
-| Variable                      | Descripción                                                                 |
-| ----------------------------- | --------------------------------------------------------------------------- |
-| `PORT`                        | Puerto del servidor (por defecto `3000`)                                    |
-| `CORS_ORIGIN`                 | Origen permitido (por defecto `http://localhost:5173`)                      |
+| Variable                        | Descripción                                                                            |
+| ------------------------------- | -------------------------------------------------------------------------------------- |
+| `PORT`                          | Puerto del servidor (por defecto `3000`)                                               |
+| `CORS_ORIGIN`                   | Origen permitido (por defecto `http://localhost:5173`)                                 |
 | `FIREBASE_SERVICE_ACCOUNT_JSON` | Service account de Firebase en Base64. Genera con `base64 serviceAccount.json` (macOS) |
 
 Edita `apps/web/.env`:
 
-| Variable                  | Descripción                                       |
-| ------------------------- | ------------------------------------------------- |
-| `VITE_API_BASE_URL`       | URL del backend (por defecto `http://localhost:3000`) |
-| `VITE_FIREBASE_API_KEY`   | Credenciales del proyecto Firebase (Web SDK)      |
-| `VITE_FIREBASE_AUTH_DOMAIN` |                                                 |
-| `VITE_FIREBASE_PROJECT_ID`  |                                                 |
-| `VITE_FIREBASE_APP_ID`      |                                                 |
+| Variable                    | Descripción                                           |
+| --------------------------- | ----------------------------------------------------- |
+| `VITE_API_BASE_URL`         | URL del backend (por defecto `http://localhost:3000`) |
+| `VITE_FIREBASE_API_KEY`     | Credenciales del proyecto Firebase (Web SDK)          |
+| `VITE_FIREBASE_AUTH_DOMAIN` |                                                       |
+| `VITE_FIREBASE_PROJECT_ID`  |                                                       |
+| `VITE_FIREBASE_APP_ID`      |                                                       |
 
 ```bash
 # 3. Arrancar ambas aplicaciones en modo desarrollo
@@ -98,3 +98,4 @@ La API sigue la convención de NestJS: cada funcionalidad tiene su propio módul
 - **Estadísticas** — el panel lateral muestra el total de kilómetros acumulados y el número de rides completados, calculados en tiempo real a partir de los datos cargados.
 - **Selección y borrado** — cada ruta y zona del historial se puede seleccionar (se resalta en el mapa) y eliminar.
 - **Localización** — botón para centrar el mapa en la ubicación actual del dispositivo.
+- **Easter egg** — si vamos a la url del api, podemos jugar un [minijuego](http://localhost:3000/) tipo runner.
