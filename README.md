@@ -119,4 +119,4 @@ La API sigue la convención de NestJS: cada funcionalidad tiene su propio módul
 - **Estadísticas** — el panel lateral muestra el total de kilómetros acumulados y el número de rides completados, calculados en tiempo real a partir de los datos cargados.
 - **Selección y borrado** — cada ruta y zona del historial se puede seleccionar (se resalta en el mapa) y eliminar.
 - **Localización** — botón para centrar el mapa en la ubicación actual del dispositivo.
-- **Easter egg** — si vamos a la url del api, podemos jugar un [minijuego](https://ridemycity-api.vercel.app/) tipo runner.
+- **Easter egg** — si vamos a la URL de la API, podemos jugar un [minijuego](https://ridemycity-api.vercel.app/) tipo runner.
