@@ -11,7 +11,6 @@ export function getAdminAuth(): admin.auth.Auth {
   }
 
   const encoded = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
-  console.log({ encoded });
   if (!encoded) {
     throw new Error(
       'Missing required environment variable: FIREBASE_SERVICE_ACCOUNT_JSON',
