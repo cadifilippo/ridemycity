@@ -4,6 +4,24 @@
   left: 0;
   height: 100%;
   z-index: 1000;
+  pointer-events: none;
+}
+
+.sidebar-wrapper > * {
+  pointer-events: auto;
+}
+
+/* ── Floating drawing panel (sidebar collapsed) ── */
+.drawing-panel-float {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1001;
+  width: 300px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 }
 
 /* ── Toggle button ── */

@@ -56,6 +56,17 @@ export default function RideSidebar({
 
   return (
     <div className="sidebar-wrapper">
+      {collapsed && drawingMode && (
+        <div className="drawing-panel-float">
+          <DrawingPanel
+            drawingMode={drawingMode}
+            estimatedKm={estimatedKm}
+            onStopDrawing={onStopDrawing}
+            onUndo={onUndo}
+            onSave={onSave}
+          />
+        </div>
+      )}
       <button
         className="sidebar-toggle"
         style={{ left: collapsed ? 0 : SIDEBAR_WIDTH }}
