@@ -69,15 +69,22 @@ describe('AvoidZonesController', () => {
           [-103.33, 20.65],
           [-103.33, 20.67],
           [-103.35, 20.67],
+          [-103.35, 20.65],
         ];
-        const createdZone: StoredAvoidZone = { id: 'zone-ef56gh78', coordinates };
+        const createdZone: StoredAvoidZone = {
+          id: 'zone-ef56gh78',
+          coordinates,
+        };
         avoidZonesService.create.mockResolvedValueOnce(createdZone);
 
         // Act
         const result = await controller.create(user, { coordinates });
 
         // Assert
-        expect(avoidZonesService.create).toHaveBeenCalledWith(user.uid, coordinates);
+        expect(avoidZonesService.create).toHaveBeenCalledWith(
+          user.uid,
+          coordinates,
+        );
         expect(result).toEqual(createdZone);
       });
     });
@@ -105,9 +112,9 @@ describe('AvoidZonesController', () => {
         const user = { uid: 'user-oax-04' };
 
         // Act & Assert
-        expect(() =>
-          controller.create(user, { coordinates: [] }),
-        ).toThrow(BadRequestException);
+        expect(() => controller.create(user, { coordinates: [] })).toThrow(
+          BadRequestException,
+        );
         expect(avoidZonesService.create).not.toHaveBeenCalled();
       });
     });

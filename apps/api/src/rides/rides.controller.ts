@@ -11,6 +11,7 @@ import {
 import { AuthGuard } from '../auth/auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { RidesService } from './rides.service';
+import { validateCoordinates } from '../common/validation/coordinates';
 
 interface AuthUser {
   uid: string;
@@ -36,6 +37,7 @@ export class RidesController {
         'coordinates must be an array of at least 2 points',
       );
     }
+    validateCoordinates(body.coordinates);
     return this.ridesService.create(user.uid, body.coordinates);
   }
 

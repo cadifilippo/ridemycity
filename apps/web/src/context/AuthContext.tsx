@@ -8,6 +8,7 @@ import {
 import {
   type User,
   GoogleAuthProvider,
+  signInWithEmailAndPassword,
   signInWithPopup,
   signOut as firebaseSignOut,
   onAuthStateChanged,
@@ -23,9 +24,29 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
+declare global {
+  interface Window {
+    __RIDEMYCITY_E2E_SIGN_IN__?: (email: string, password: string) => Promise<void>;
+  }
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (import.meta.env.VITE_E2E !== 'true') {
+      return;
+    }
+
+    window.__RIDEMYCITY_E2E_SIGN_IN__ = async (email: string, password: string) => {
+      await signInWithEmailAndPassword(auth, email, password);
+    };
+
+    return () => {
+      delete window.__RIDEMYCITY_E2E_SIGN_IN__;
+    };
+  }, []);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {

@@ -6,7 +6,10 @@
   "scripts": {
     "dev": "pnpm -r dev",
     "build": "pnpm -r build",
-    "test": "pnpm -r test"
+    "test": "pnpm -r test",
+    "lint": "pnpm -r lint",
+    "lint:fix": "pnpm -r lint:fix",
+    "test:e2e": "pnpm --filter ridemycity-e2e test"
   },
   "keywords": [],
   "author": "",
