@@ -14,6 +14,9 @@ export async function waitForMapReady(page: Page): Promise<void> {
     },
     { timeout: 20_000 },
   );
+
+  // Wait for the network to settle so UI controls are fully rendered
+  await page.waitForLoadState('networkidle');
 }
 
 /**

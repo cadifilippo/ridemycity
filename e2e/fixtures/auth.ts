@@ -62,6 +62,13 @@ export const test = base.extend<AuthFixtures>({
     // that's already loaded in the app bundle
     await page.waitForSelector('.login-btn', { timeout: 15_000 });
 
+    // Wait for the E2E sign-in hook to be registered by the React useEffect.
+    // In headless mode the test can outrun the effect registration.
+    await page.waitForFunction(
+      () => typeof (globalThis as any).__RIDEMYCITY_E2E_SIGN_IN__ === 'function',
+      { timeout: 10_000 },
+    );
+
     const email = process.env.E2E_USER_EMAIL!;
     const password = process.env.E2E_USER_PASSWORD!;
 
