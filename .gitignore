@@ -14,5 +14,9 @@ dist
 # logs
 *.log
 
+# e2e test artifacts
+e2e/test-results/
+e2e/playwright-report/
+
 # misc
 .DS_Store

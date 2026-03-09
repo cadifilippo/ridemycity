@@ -15,6 +15,10 @@ interface AuthUser {
 }
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { AvoidZonesService } from './avoid-zones.service';
+import {
+  validateCoordinates,
+  validatePolygonClosure,
+} from '../common/validation/coordinates';
 
 @UseGuards(AuthGuard)
 @Controller('avoid-zones')
@@ -36,6 +40,8 @@ export class AvoidZonesController {
         'coordinates must be an array of at least 4 points (closed polygon)',
       );
     }
+    validateCoordinates(body.coordinates);
+    validatePolygonClosure(body.coordinates);
     return this.avoidZonesService.create(user.uid, body.coordinates);
   }
 

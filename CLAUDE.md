@@ -90,3 +90,12 @@ Format: `[Unit under test] [scenario] [expected result]`
 - Backend: decorators enabled (NestJS), target ES2023, `nodenext` module resolution.
 - Frontend: strict mode, bundler module resolution, no unused locals/parameters.
 - Shared types must live in `packages/shared`, not duplicated across apps.
+
+## Active Technologies
+- TypeScript (strict mode), Node.js, ES2023 targe + NestJS (controllers, guards, exceptions) (001-coord-validation)
+- Firestore (no schema changes needed — this is input validation before persistence) (001-coord-validation)
+- TypeScript (strict mode), Node.js + Playwright (browser automation + test runner), NestJS, React 19, Vite, MapLibre GL JS (002-e2e-tests)
+- Firestore (test data created and cleaned up per test) (002-e2e-tests)
+
+## Recent Changes
+- 001-coord-validation: Added TypeScript (strict mode), Node.js, ES2023 targe + NestJS (controllers, guards, exceptions)
